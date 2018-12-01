@@ -68,7 +68,8 @@ class Filter extends Component {
     return (
       <div style={defaultStyle}>
         <img />
-        <input type='text' /> Filter
+        <input type='text' onKeyUp={e => 
+          this.props.onTextChange(e.target.value)} />
       </div>
     )
   }
@@ -94,19 +95,22 @@ class Playlist extends Component {
 class App extends Component {
   constructor() {
     super()
-    this.state = { serverData: {} }
+    this.state = { 
+      serverData: {},
+      filterString: '',
+    }
   }
 
   componentDidMount() {
     setTimeout(() => {
       this.setState({ serverData: fakeServerData })
-    }, 500)
+    }, 1000)
   }
 
   render() {
+
     return (
       <div className="App">
-
         {this.state.serverData.user ? //Corre essa linha. Se existir um usuário, segue para as de baixo.
           <div>
             <h1 style={{ ...defaultStyle, 'font-size': '54px' }}>
@@ -114,8 +118,10 @@ class App extends Component {
             </h1>
             <PlaylistCounter playlists={this.state.serverData.user.playlists} />
             <HoursCounter playlists={this.state.serverData.user.playlists} />
-            <Filter />
-            {this.state.serverData.user.playlists.map(playlist => 
+            <Filter onTextChange={text => this.setState({filterString: text})} />
+            {this.state.serverData.user.playlists.filter((playlist) =>
+              playlist.name.toLowerCase().includes(this.state.filterString.toLowerCase())
+            ).map(playlist => 
               <Playlist playlist={playlist}/>
             )}
             
