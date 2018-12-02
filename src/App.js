@@ -1,20 +1,31 @@
 import React, { Component } from 'react';
+import 'reset-css/reset.css'
 import './App.css';
 import queryString from 'query-string'
 
 let defaultStyle = {
-  color: '#fff'
+  color: '#fff',
+  fontFamily: 'Helvetica'
 }
+
+let counterStyle = {...defaultStyle, 
+  width: '40%', 
+  display: 'inline-block',
+  marginBottom: '10px',
+  lineHeight: '30px', 
+  fontSize: '20px',}
 
 class PlaylistCounter extends Component {
   render() {
+    let playlistCounterStyle = {...counterStyle}
     return (
-      <div className='aggregate' style={{ ...defaultStyle, width: '40%', display: 'inline-block' }}>
+      <div style={playlistCounterStyle}>
         <h2>{this.props.playlists.length} Playlists</h2>
       </div>
     )
   }
 }
+
 
 class HoursCounter extends Component {
   render() {
@@ -24,8 +35,13 @@ class HoursCounter extends Component {
     let totalDuration = allSongs.reduce((sum, eachSong) => {
       return sum + eachSong.duration
     }, 0)
+    let isTooLow = (Math.round(totalDuration)/60) < 10
+    let hoursCounterStyle = {...counterStyle, 
+      color: isTooLow ? 'red' : 'white',
+      fontWeight: isTooLow ? 'bold' : 'normal'
+    }
     return (
-      <div className='aggregate' style={{ ...defaultStyle, width: '40%', display: 'inline-block' }}>
+      <div style={hoursCounterStyle}>
         <h2>{Math.round(totalDuration / 60)} Minutes</h2>
       </div>
     )
@@ -38,7 +54,12 @@ class Filter extends Component {
       <div style={defaultStyle}>
         <img />
         <input type='text' onKeyUp={e =>
-          this.props.onTextChange(e.target.value)} />
+          this.props.onTextChange(e.target.value)}
+          style={{...defaultStyle, 
+          color: 'black',
+          fontSize: '20px', 
+          padding: '10px',
+          marginBottom: '20px'}} />
       </div>
     )
   }
@@ -48,12 +69,23 @@ class Playlist extends Component {
   render() {
     let playlist = this.props.playlist
     return (
-      <div style={{ ...defaultStyle, width: '20%', display: 'inline-block' }}>
-        <img src={playlist.imageUrl} style={{width: '60px'}} />
-        <h3>{playlist.name}</h3>
-        <ul>
+      <div style={{ ...defaultStyle, 
+      width: '22%', 
+      display: 'inline-block',
+      height: '200px',
+      padding: '10px',
+      background: this.props.index % 2 ? '#C0C0C0' : '#808080',
+      textAlign: 'center',
+      verticalAlign: 'top', 
+      overflow: 'hidden',
+      borderBottom: 'solid 1px #303030'
+      }}>
+        <h3 style={{fontWeight: 'bold'}}>{playlist.name}</h3>
+        <img src={playlist.imageUrl} style={{width: '60px', marginTop: '10px'}} />
+        <ul style={{marginTop: '10px',
+            fontWeight: 'bold'}}>
           {this.props.playlist.songs.map(song =>
-            <li>{song.name}</li>
+            <li style={{lineHeight: '20px', textOverflow: 'ellipsis'}}>{song.name}</li>
           )}
         </ul>
       </div>
@@ -132,15 +164,17 @@ class App extends Component {
       <div className="App">
         {this.state.user ? //Corre essa linha. Se existir um usuário, segue para as de baixo.
           <div>
-            <h1 style={{ ...defaultStyle, fontSize: '54px' }}>
+            <h1 style={{ ...defaultStyle, 
+              fontSize: '54px',
+              marginTop: '20px' }}>
               {this.state.user.name}'s Playlists
             </h1>
             <PlaylistCounter playlists={playlistToRender} />
             <HoursCounter playlists={playlistToRender} />
             <Filter onTextChange={text =>
               this.setState({ filterString: text })} />
-            {playlistToRender.map(playlist =>
-              <Playlist playlist={playlist} />
+            {playlistToRender.map((playlist, i) =>
+              <Playlist playlist={playlist} index={i} />
             )}
           </div> : <button onClick={() => window.location = 'http://localhost:8888/login'}
             style={{ padding: '20px', fontSize: '50px', marginTop: '20px' }}>
